@@ -1,0 +1,21 @@
+
+Generating CONTROL files for HYSPLIT:
+   /local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working
+Traceback (most recent call last):
+  File "make_control_jan2024_test.py", line 118, in <module>
+    t = start_time.add(hours=i)
+AttributeError: 'cftime._cftime.DatetimeGregorian' object has no attribute 'add'
+
+Generating CONTROL files for HYSPLIT:
+   /local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working
+Traceback (most recent call last):
+  File "make_control_jan2024_test.py", line 120, in <module>
+    make_CONTROL_local(str(unique_ID), t, traj_heights, backtrack_time, control_output_path, hysplit_traj_dir, arl_path)
+  File "make_control_jan2024_test.py", line 67, in make_CONTROL_local
+    for i in range(len(lat)):
+TypeError: object of type 'float' has no len()
+
+Generating CONTROL files for HYSPLIT:
+   /local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working
+Time elapsed: 0.00 sec
+Finished!
