@@ -111,9 +111,12 @@ class TrajectoryFile:
 
         # read in file in fixed-width format
         trajectories = pd.read_fwf(filepath, widths=col_widths, names=traj_columns, dtype=traj_dtypes,
-                           skiprows=traj_skiprow).set_index(['traj #', 'traj age'])
+                           skiprows=traj_skiprow)
+        #print(list(trajectories.keys()))
+        trajectories = trajectories.set_index(['traj #', 'traj age'])
         trajectories.sort_index(inplace=True)
-
+        #print(trajectories.index)
+        
         # remove columns that have become indices before changing dtype
         del traj_dtypes['traj #']
         del traj_dtypes['traj age']
@@ -346,104 +349,145 @@ class TrajectoryFile:
     # Method 1: estimate w via reanalysis-derived values at nearest p surface and gridpoint 
     # Method 2: coarse estimation of omega using traj pressure output 
     # (self, out_file, case_number, title, lat, lon)
-    def plot_omega_gridplots(self, ds_era5, title, out_file): 
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
+    def plot_omega_gridplots(self, ds_era5, title, out_file):  
+        #print(ds_era5.z)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5)) # 10, 3.5
 
         traj_ages = np.arange(-18,1)
-        traj_nums = np.arange(1,31) ### bookmark - figure out how nums are treated
+        traj_nums = np.arange(1,31) 
         pressure_levels = [300, 350, 400, 450, 500, 550, 600, 650, 700, 750,
             775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
         omega_grid1 = np.full((len(traj_nums), len(traj_ages)), np.nan)
-        height_zero_grid = np.zeros((len(traj_nums), len(traj_ages)), dtype=bool) # is height zero?
-        #omega_grid2 = np.zeros(len(traj_nums), len(traj_ages)) # can ignore for now
+        height_zero_grid = np.full((len(traj_nums), len(traj_ages)), False, dtype=bool) # is height zero?
+        omega_grid2 = np.full((len(traj_nums), len(traj_ages)), np.nan) 
 
-        for traj_num in range(1, self.ntraj + 1):
+        for traj_num in range(1, self.ntraj + 1): # loop through each trajectory 
             try:
                 trajectory = self.data_1h.loc[traj_num]
             except KeyError:
                 continue  # Skip missing trajectory numbers
-             
-            #numbers = trajectory['traj #'].values
-            lats = trajectory['lat'].values
-            lons = trajectory['lon'].values
-            heights = trajectory['height (m)'].values
-            pressures = trajectory['pressure (hPa)'].values # ignore this for now
-            ages = trajectory['traj age'].values
-            dates = trajectory['datetime'].values
-
-            #for i in range(len(lats)):
-                #ages = trajectory.index.get_level_values('traj age')[i]
             
-            ### Method 1
-            for lat, lon, height, age, date in zip(lats, lons, heights, ages, dates):
+            i = -19 # start at age -18 h ... to 0 h 
+            lats = trajectory['lat'].values[i:]
+            lons = trajectory['lon'].values[i:]
+            heights = trajectory['height (m)'].values[i:]
+            #print(min(heights))
+            #print(heights)
+            pressures = trajectory['pressure (hPa)'].values[i:] 
+            #print(pressures)
+            pres_init = trajectory['pressure (hPa)'].values[i-1]
+            ages = trajectory.index.get_level_values('traj age')
+            ages = ages[i:] 
+            dates = trajectory['datetime'].values[i:]
+             
+            for lat, lon, height, pres, age, date in zip(lats, lons, heights, pressures, ages, dates): 
+                # loop through each pt in a trajectory 
                 date2 = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")  
                 date3 = date2.replace(year = date2.year + 2000)
                 date_str = date3.strftime("%H:%M:%S %d %b %Y")
                 
+                ### Method 1: estimate w via reanalysis-derived values at nearest p surface and gridpoint
                 # Find two adjacent pressure levels for interpolation
-                upper_level = None
-                lower_level = None
+                e5_heights = ds_era5.z(latitude=lat, longitude=lon, time=date_str).squeeze()[:]
+                e5_heights = e5_heights/9.8 # get height (in m) instead of geopotential
+                e5_omega = ds_era5.w(latitude=lat, longitude=lon, time=date_str).squeeze()[:]
 
-                for i in range(len(pressure_levels) - 1): # also, what if sfc p < 1000 hPa?
-                    upper_level_height = ds_era5.z(latitude=lat, longitude=lon, time=date_str, level=pressure_levels[i]) 
-                    lower_level_height = ds_era5.z(latitude=lat, longitude=lon, time=date_str, level=pressure_levels[i + 1]) 
+                """if age == 0: # test/debug 
+                    print(e5_heights)
+                    print(e5_omega)""" 
 
-                    if lower_level_height <= height <= upper_level_height:
-                        upper_level = pressure_levels[i]
-                        lower_level = pressure_levels[i + 1]
+                for i in range(1, len(pressure_levels)): 
+                    #upper_level_height = ds_era5.z(latitude=lat, longitude=lon, time=date_str, level=pressure_levels[i])[:]
+                    #lower_level_height = ds_era5.z(latitude=lat, longitude=lon, time=date_str, level=pressure_levels[i + 1])[:] 
+                    if height > e5_heights[i]:
+                        upper_level_height = e5_heights[i-1]
+                        lower_level_height = e5_heights[i] 
+                        upper_omega = e5_omega[i-1]
+                        lower_omega = e5_omega[i]
                         break
 
-                if upper_level and lower_level:
-                    upper_omega = ds_era5.w(latitude=lat, longitude=lon, time=date_str, level=upper_level)
-                    lower_omega = ds_era5.w(latitude=lat, longitude=lon, time=date_str, level=lower_level)
+                if height < e5_heights[-1]: # interpolate omega between 1000 hPa height and zero, assuming w(z = 0) = 0
+                    upper_level_height = e5_heights[-1]
+                    lower_level_height = 0
+                    upper_omega = e5_omega[-1]
+                    lower_omega = 0
 
-                    upper_level_height = ds_era5.z(latitude=lat, longitude=lon, time=date_str, level=upper_level)
-                    lower_level_height = ds_era5.z(latitude=lat, longitude=lon, time=date_str, level=lower_level)
-                    
-                    upper_omega = upper_omega[0,0,0,0]
-                    lower_omega = lower_omega[0,0,0,0]
-                    upper_level_height = upper_level_height[0,0,0,0]
-                    lower_level_height = lower_level_height[0,0,0,0]
+                # linear interpolation
+                omega_interp = np.interp(height, [lower_level_height, upper_level_height], [lower_omega, upper_omega])
+                omega_grid1[traj_num - 1, age + 18] = omega_interp
 
-                    # Linear interpolation
-                    omega_interp = np.interp(height, [lower_level_height, upper_level_height], [lower_omega, upper_omega])
-                    omega_grid1[traj_num - 1, age + 18] = omega_interp
+                #if age == 0: # test/debug 
+                    #print("Traj num " + str(traj_num) + " has height " + str(height))
+                    #print("Traj num " + str(traj_num) + " has LLH " + str(lower_level_height) + " has height " + 
+                        #str(height) + " has ULH " + str(upper_level_height))
+                    #print("Traj num " + str(traj_num) + " has upper level " + str(upper_level_height) +
+                        #" m and lower level " + str(lower_level_height) + " m")
+            
+                ### Method 2: coarse estimation of omega using traj pressure output only 
+                # for time = i, take the difference between p(t = i) and p(t = (i-1)), convert to Pa, divide by 3600 s
+                if age == -18: 
+                    omega_grid2[traj_num - 1, age + 18] = (100*(pres - pres_init))/3600
                 else:
-                    omega_grid1[traj_num - 1, age + 18] = np.nan
+                    omega_grid2[traj_num - 1, age + 18] = (100*(pres - pressures[age + 17]))/3600
 
+                # test here
                 if height == 0: # keep track whether height is zero
                     height_zero_grid[traj_num - 1, age + 18] = True
+                    omega_grid1[traj_num - 1, age + 18] = np.nan
+                    omega_grid2[traj_num - 1, age + 18] = np.nan
                     continue
+
+            #print(np.min(height)) ### double check code/unreliable heights
+            #print(height_zero_grid)
 
         X, Y = np.meshgrid(traj_ages, traj_nums) 
         cmap = cm.get_cmap('bwr')
-        norm1 = plt.Normalize(np.nanmin(omega_grid1), -np.nanmin(omega_grid1)) # -6, 6?
+        #norm1 = plt.Normalize(np.nanmin(omega_grid1), -np.nanmin(omega_grid1)) # -6, 6?
+        norm = plt.Normalize(-6, 6)
 
-        # check the following code
-        c = ax1.pcolormesh(X, Y, omega_grid1, cmap=cmap, norm=norm1, shading='auto')
-        fig.colorbar(c, ax=ax1, label='Omega (Pa/s)')
+        # plotting code
+        c1 = ax1.pcolormesh(X, Y, omega_grid1, cmap=cmap, norm=norm)
+        fig.colorbar(c1, ax=ax1, extend="both")
         ax1.set_xlabel('Trajectory age (hours)', fontsize=12)
         ax1.set_ylabel('Trajectory number', fontsize=12)
-        ax1.set_title(title, fontsize=14, fontweight='bold') # include ending location and end time
-        ax1.set_yticks(traj_nums)
-        ax1.set_xticks(traj_ages)
-        
-        # Annotate asterisks for zero height values
+        #ax1.set_title(title, fontsize=14, fontweight='bold') # include ending location and end time
+        ax1.set_title("(1) Reanalysis-interpolated omega")
+        ax1.set_yticks(traj_nums[::2])
+        ax1.set_xticks(traj_ages[::2])
+
+        c2 = ax2.pcolormesh(X, Y, omega_grid2, cmap=cmap, norm=norm)
+        fig.colorbar(c2, ax=ax2, extend="both")
+        ax2.set_xlabel('Trajectory age (hours)', fontsize=12)
+        ax2.set_ylabel('Trajectory number', fontsize=12)
+        #ax2.set_title(title, fontsize=14, fontweight='bold')
+        ax2.set_title("(2) Trajectory file coarse estimate")
+        ax2.set_yticks(traj_nums[::2])
+        ax2.set_xticks(traj_ages[::2])
+
+        fig.suptitle(title, fontsize=14, fontweight='bold')
+
+        #print(omega_grid1[:,18])
+        #print(np.sum(heights == 0.0))
+        #print(np.size(heights))
+        #print(np.sum(height_zero_grid == True))
+
+        # Annotate asterisks for zero height values  
         for i in range(len(traj_nums)):
             for j in range(len(traj_ages)):
-                if height_zero_grid[i, j]:
-                    ax1.text(traj_ages[j], traj_nums[i], '*', ha='center', va='center', color='black')
+                if height_zero_grid[i, j] == True:
+                    ax1.text(traj_ages[j], traj_nums[i], '0', ha='center', va='center', color='black')
+                    ax2.text(traj_ages[j], traj_nums[i], '0', ha='center', va='center', color='black')
 
         plt.savefig("./figures/" + out_file)
-
-        ### double check how traj # is handled above
+        
+        ### double check reasonableness of plots 
 
     # plots a gridplot "sounding" time series q(z,t) at a fixed point 
     def plot_sphum_gridplot(self, out_file, case_number, title, lat, lon):
         times = ["{:02d}".format(i) for i in range(19)]
         heights = np.arange(200, 6001, 200)
     
-        fig, ax = plt.subplots(figsize=(10, 8))
+        fig, ax = plt.subplots(figsize=(10, 8)) # 10, 8
     
         sphum_grid = np.zeros((len(heights), len(times)))
         path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
@@ -507,38 +551,41 @@ class TrajectoryFile:
 # might be useful to plot time series (ht vs time) of trajectories?
 
 # Example with test case + animate files
-"""path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
-case_nums = range(1021, 1034) ### change as needed
-hours = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", 
-    "13", "14", "15", "16", "17", "18"]"""
+path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
+case_nums = range(1041, 1054) ### change as needed
+hours = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
-""" for case_nums, hours in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
-    out_file = f"{case_nums}_121823_{hours}_trajmaps.png"
-    fn = path + f"traj_{case_nums}.traj"
+"""for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
+    #out_file = f"{case_num}_121823_{hour}_trajmaps.png"
+    out_file = f"{case_num}_011024_{hour}_omega_gridplot.png"
+    fn = path + f"traj_{case_num}.traj"
     traj_file = TrajectoryFile(fn) 
-    traj_file.plot_trajectories("Lewiston, ME (KLEW)", out_file) ### 
+    #traj_file.plot_trajectories("Lewiston, ME (KLEW)", out_file) ### 
+    traj_file.plot_omega_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+       f"Omega gridplots (Pa/s) following trajectories ending at Providence {hour} UTC", out_file) ### 
     print("Completed " + out_file) """
 
-""" fn = []
-for case_nums, hours in zip(case_nums, hours):
-    filepath = f"./figures/{case_nums}_121823_{hours}_trajmaps.png"
+fn = []
+for case_num, hour in zip(case_nums, hours):
+    #filepath = f"./figures/{case_num}_121823_{hour}_trajmaps.png"
+    filepath = f"./figures/{case_num}_011024_{hour}_omega_gridplot.png"
     fn.append(filepath)
 images = []
 
 for filename in fn:
     images.append(iio.imread(filename))
     print("Completed " + filename)
-iio.imwrite('./figures/121823_lewiston.gif', images, duration = 3000, loop = 0) ### """
+iio.imwrite('./figures/011024_providence_omega_gridplot.gif', images, duration = 3000, loop = 0) ###  
 
-path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
-case_num = 1021
-hour = "00"
+"""path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
+case_num = 1033 ###
+hour = "12" ###
 out_file = f"{case_num}_011024_{hour}_omega_gridplot.png"
 fn = path + f"traj_{case_num}.traj"
 traj_file = TrajectoryFile(fn) 
 traj_file.plot_omega_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-    "Omega gridplot following trajectories \nending at Baltimore 00 UTC", out_file) ### 
-print("Completed " + out_file)
+    "Omega gridplots (Pa/s) following trajectories ending at Providence 12 UTC", out_file) ### 
+print("Completed " + out_file)"""
 
 # plot gridplot
 """path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
