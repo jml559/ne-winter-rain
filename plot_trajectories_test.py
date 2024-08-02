@@ -242,7 +242,7 @@ class TrajectoryFile:
         #self.data_1h['datetime'] = pd.to_datetime(self.data_1h['datetime'], format='%y-%m-%d %H:%M:%S')
         #end_time = self.data_1h.iloc[0]['datetime'].strftime('%-m-%-d-%y %H UTC')
         fig.suptitle(f'Back trajectories ending {self.end_time} at ' 
-            + location + ', 5 days', fontweight="bold") # automate also back traj time (__-day back traj)
+            + location + ', 3 days', fontweight="bold") # automate also back traj time (__-day back traj)
 
         for ax in [ax1, ax2]:
             ax.set_extent([-110, -55, 15, 50], crs=ccrs.PlateCarree()) # -130, -55, 5, 50
@@ -345,11 +345,11 @@ class TrajectoryFile:
         fig.savefig("./figures/" + out_file)
         #plt.show()
     
-    # plots omega using two methods
+    # plots Lagrangian omega using two methods
     # Method 1: estimate w via reanalysis-derived values at nearest p surface and gridpoint 
     # Method 2: coarse estimation of omega using traj pressure output 
     # (self, out_file, case_number, title, lat, lon)
-    def plot_omega_gridplots(self, ds_era5, title, out_file):  
+    def plot_omega_lagr_gridplots(self, ds_era5, title, out_file):  
         #print(ds_era5.z)
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5)) # 10, 3.5
 
@@ -430,7 +430,6 @@ class TrajectoryFile:
                 else:
                     omega_grid2[traj_num - 1, age + 18] = (100*(pres - pressures[age + 17]))/3600
 
-                # test here
                 if height == 0: # keep track whether height is zero
                     height_zero_grid[traj_num - 1, age + 18] = True
                     omega_grid1[traj_num - 1, age + 18] = np.nan
@@ -443,7 +442,7 @@ class TrajectoryFile:
         X, Y = np.meshgrid(traj_ages, traj_nums) 
         cmap = cm.get_cmap('bwr')
         #norm1 = plt.Normalize(np.nanmin(omega_grid1), -np.nanmin(omega_grid1)) # -6, 6?
-        norm = plt.Normalize(-6, 6)
+        norm = plt.Normalize(-3, 3) # -3, 3
 
         # plotting code
         c1 = ax1.pcolormesh(X, Y, omega_grid1, cmap=cmap, norm=norm)
@@ -471,7 +470,7 @@ class TrajectoryFile:
         #print(np.size(heights))
         #print(np.sum(height_zero_grid == True))
 
-        # Annotate asterisks for zero height values  
+        # Annotate zeros for zero height values  
         for i in range(len(traj_nums)):
             for j in range(len(traj_ages)):
                 if height_zero_grid[i, j] == True:
@@ -481,9 +480,130 @@ class TrajectoryFile:
         plt.savefig("./figures/" + out_file)
         
         ### double check reasonableness of plots 
+    
+    # plots specific humidity using two methods in a Lagrangian sense 
+    # Method 1: reanalysis-interpolated specific humidity (multiply era5 values by 1000 to get g/kg)
+    # Method 2: trajectory file output 
+    def plot_sphum_lagr_gridplots(self, ds_era5, title, out_file):  
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 7)) 
 
-    # plots a gridplot "sounding" time series q(z,t) at a fixed point 
-    def plot_sphum_gridplot(self, out_file, case_number, title, lat, lon):
+        traj_ages = np.arange(-18,1)
+        traj_nums = np.arange(1,31) 
+        pressure_levels = [300, 350, 400, 450, 500, 550, 600, 650, 700, 750,
+            775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
+        sphum_grid1 = np.full((len(traj_nums), len(traj_ages)), np.nan)
+        height_zero_grid = np.full((len(traj_nums), len(traj_ages)), False, dtype=bool) # is height zero?
+        sphum_grid2 = np.full((len(traj_nums), len(traj_ages)), np.nan) 
+
+        for traj_num in range(1, self.ntraj + 1): # loop through each trajectory 
+            try:
+                trajectory = self.data_1h.loc[traj_num]
+            except KeyError:
+                continue  # Skip missing trajectory numbers
+            
+            i = -19 # start at age -18 h ... to 0 h 
+            lats = trajectory['lat'].values[i:]
+            lons = trajectory['lon'].values[i:]
+            heights = trajectory['height (m)'].values[i:]
+            #print(heights)
+            #pressures = trajectory['pressure (hPa)'].values[i:] 
+            sphums = trajectory['specific humidity (g/kg)'].values[i:]
+            ages = trajectory.index.get_level_values('traj age')
+            ages = ages[i:] 
+            dates = trajectory['datetime'].values[i:]
+             
+            for lat, lon, height, sphum, age, date in zip(lats, lons, heights, sphums, ages, dates): 
+                # loop through each pt in a trajectory 
+                date2 = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")  
+                date3 = date2.replace(year = date2.year + 2000)
+                date_str = date3.strftime("%H:%M %d %b %Y")
+
+                # Find two adjacent pressure levels for interpolation
+                e5_heights = ds_era5.z(latitude=lat, longitude=lon, time=date_str).squeeze()[:]
+                e5_heights = e5_heights/9.8 # get height (in m) instead of geopotential
+                e5_sphums = 1000*ds_era5.q(latitude=lat, longitude=lon, time=date_str).squeeze()[:] # level?
+                
+                if age == -18 and traj_num == 1:
+                    print(e5_heights)
+                    print(e5_sphums)
+                    print(lat)
+                    print(lon)
+                    print(date_str)
+                    print(ds_era5.z(latitude=lat, longitude=lon, time=date_str))
+                    print(ds_era5.q(latitude=lat, longitude=lon, time=date_str))
+
+
+                for i in range(1, len(pressure_levels)):  
+                    if height > e5_heights[i]:
+                        upper_level_height = e5_heights[i-1]
+                        lower_level_height = e5_heights[i] 
+                        upper_q = e5_sphums[i-1]
+                        lower_q = e5_sphums[i]
+                        break
+
+                if height < e5_heights[-1]: # interpolate q between 1000 hPa height and zero 
+                    upper_level_height = e5_heights[-1]
+                    lower_level_height = 0
+                    upper_q = e5_sphums[-1]
+                    lower_q = e5_sphums[-1] + ((e5_sphums[-1] - e5_sphums[-2])/(e5_heights[-1] - e5_heights[-2]))*e5_heights[-1]
+
+                if age == -18 and traj_num == 1:
+                    print(height)
+                    print(i, pressure_levels[i])
+                    print(upper_level_height)
+                    print(lower_level_height)
+                    print(sphum)
+                    print(upper_q)
+                    print(lower_q)
+
+                # linear interpolation
+                q_interp = np.interp(height, [lower_level_height, upper_level_height], [lower_q, upper_q])
+                sphum_grid1[traj_num - 1, age + 18] = q_interp
+
+                # Method 2
+                sphum_grid2[traj_num - 1, age + 18] = sphum   
+
+                if height == 0: # keep track whether height is zero
+                    height_zero_grid[traj_num - 1, age + 18] = True
+                    continue
+
+                """for e5_sphum in e5_sphums:
+                    sphum_grid1[traj_num - 1, age + 18] = e5_sphum
+                sphum_grid2[traj_num - 1, age + 18] = sphum"""
+
+        X, Y = np.meshgrid(traj_ages, traj_nums) 
+        cmap = cm.get_cmap('viridis')
+        norm = plt.Normalize(0, 14)
+
+        # plotting code
+        c1 = ax1.pcolormesh(X, Y, sphum_grid1, cmap=cmap, norm=norm)
+        fig.colorbar(c1, ax=ax1, extend="max")
+        ax1.set_xlabel('Trajectory age (hours)', fontsize=12)
+        ax1.set_ylabel('Trajectory number', fontsize=12)
+        ax1.set_title("(1) Reanalysis-interpolated $q$")
+        ax1.set_yticks(traj_nums[::2])
+        ax1.set_xticks(traj_ages[::2])
+
+        c2 = ax2.pcolormesh(X, Y, sphum_grid2, cmap=cmap, norm=norm)
+        fig.colorbar(c2, ax=ax2, extend="max")
+        ax2.set_xlabel('Trajectory age (hours)', fontsize=12)
+        ax2.set_ylabel('Trajectory number', fontsize=12)
+        ax2.set_title("(2) Trajectory file output $q$")
+        ax2.set_yticks(traj_nums[::2])
+        ax2.set_xticks(traj_ages[::2])
+        fig.suptitle(title, fontsize=14, fontweight='bold')
+
+        # Annotate zeros for zero height values  
+        for i in range(len(traj_nums)):
+            for j in range(len(traj_ages)):
+                if height_zero_grid[i, j] == True:
+                    ax1.text(traj_ages[j], traj_nums[i], '0', ha='center', va='center', color='black')
+                    ax2.text(traj_ages[j], traj_nums[i], '0', ha='center', va='center', color='black')
+
+        plt.savefig("./figures/" + out_file)
+
+    # plots a gridplot "sounding" time series q(z,t) at a fixed point (Eulerian)
+    def plot_sphum_eul_gridplot(self, out_file, case_number, title, lat, lon):
         times = ["{:02d}".format(i) for i in range(19)]
         heights = np.arange(200, 6001, 200)
     
@@ -552,40 +672,48 @@ class TrajectoryFile:
 
 # Example with test case + animate files
 path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
-case_nums = range(1041, 1054) ### change as needed
+case_nums = range(1021, 1022) ### change as needed
 hours = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
-"""for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
-    #out_file = f"{case_num}_121823_{hour}_trajmaps.png"
-    out_file = f"{case_num}_011024_{hour}_omega_gridplot.png"
+for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
+    #out_file = f"{case_num}_011024_{hour}_trajmaps.png"
+    #out_file = f"{case_num}_011024_{hour}_omega_gridplot.png"
+    out_file = f"{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
     fn = path + f"traj_{case_num}.traj"
     traj_file = TrajectoryFile(fn) 
-    #traj_file.plot_trajectories("Lewiston, ME (KLEW)", out_file) ### 
-    traj_file.plot_omega_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-       f"Omega gridplots (Pa/s) following trajectories ending at Providence {hour} UTC", out_file) ### 
-    print("Completed " + out_file) """
+    #traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
+    #traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+       #f"Omega gridplots (Pa/s) following trajectories ending at Providence {hour} UTC", out_file) ### 
+    traj_file.plot_sphum_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+        "Specific humidity gridplots (g/kg) following trajectories \nending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
+    print("Completed " + out_file) 
 
-fn = []
+"""fn = []
 for case_num, hour in zip(case_nums, hours):
     #filepath = f"./figures/{case_num}_121823_{hour}_trajmaps.png"
-    filepath = f"./figures/{case_num}_011024_{hour}_omega_gridplot.png"
+    #filepath = f"./figures/{case_num}_011024_{hour}_omega_gridplot.png"
+    filepath = f"./figures/{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
     fn.append(filepath)
 images = []
 
 for filename in fn:
     images.append(iio.imread(filename))
     print("Completed " + filename)
-iio.imwrite('./figures/011024_providence_omega_gridplot.gif', images, duration = 3000, loop = 0) ###  
+iio.imwrite('./figures/011024_baltimore_sphum_lagr_gridplot.gif', images, duration = 3000, loop = 0) ###  """
 
 """path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
-case_num = 1033 ###
-hour = "12" ###
-out_file = f"{case_num}_011024_{hour}_omega_gridplot.png"
+case_num = 1021 ###
+hour = "00" ###
+out_file = f"{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
 fn = path + f"traj_{case_num}.traj"
 traj_file = TrajectoryFile(fn) 
-traj_file.plot_omega_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-    "Omega gridplots (Pa/s) following trajectories ending at Providence 12 UTC", out_file) ### 
-print("Completed " + out_file)"""
+#traj_file.plot_trajectories("Baltimore", f"{case_num}_011024_{hour}_trajmaps.png")
+#print("Completed " + f"{case_num}_011024_{hour}_trajmaps.png")
+traj_file.plot_sphum_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+    "Specific humidity gridplots (g/kg) following trajectories \nending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
+print("Completed " + out_file) """
+
+#def plot_sphum_lagr_gridplot(self, ds_era5, title, out_file)
 
 # plot gridplot
 """path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"

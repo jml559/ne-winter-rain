@@ -15,7 +15,7 @@ control_output_path = '/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LT
 #all_events_file = os.path.join(case_dir, 'events_500.pkl')
 hysplit_traj_dir = os.path.join(control_output_path, "trajectories")
 traj_heights = np.arange(200, 6001, 200)  # in meters
-backtrack_time = -5*24  # in hours
+backtrack_time = -3*24  # in hours
 
 """if not os.path.exists(control_output_path):
     os.makedirs(control_output_path)"""
@@ -54,8 +54,8 @@ def make_CONTROL_local(unique_ID, t, traj_heights, track_time, control_dir, traj
         
         # test case time, lat, lon:
         #t = cftime.DatetimeGregorian(2024, 1, 10, 12, 0, 0) 
-        lat = [44.1] # [39.2, 40.9, 41.7, 44.1]
-        lon = [-70.3] #[-76.7, -74.3, -71.4, -70.3]
+        lat = [39.2] # [39.2, 40.9, 41.7, 44.1]
+        lon = [-76.5] #[-76.7, -74.3, -71.4, -70.3]
         
         # Start time:
         f.write('{:02d} {:02d} {:02d} {:02d}\n'.format(t.year, t.month, t.day, t.hour))
@@ -109,11 +109,11 @@ if t.month < 4:
     start_year = t.year - 1"""
 
 #arl_path = os.path.join(arl_data_dir, '_{:02d}{:02d}.arl'.format(start_year, start_year + 1))
-arl_path = os.path.join(arl_data_dir, 'dec2023_test.ARL')
+arl_path = os.path.join(arl_data_dir, 'jan2024_test_2.ARL') # 'dec2023_test.ARL'
 
 # looping through IDs and times  
-unique_IDs = range(1121, 1140)
-start_time = cftime.DatetimeGregorian(2023, 12, 18, 0, 0, 0) 
+unique_IDs = range(1221, 1234)
+start_time = cftime.DatetimeGregorian(2024, 1, 10, 0, 0, 0)  
 
 for i, unique_ID in enumerate(unique_IDs):
     t = start_time + timedelta(hours=i)
