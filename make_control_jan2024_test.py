@@ -109,7 +109,7 @@ if t.month < 4:
     start_year = t.year - 1"""
 
 #arl_path = os.path.join(arl_data_dir, '_{:02d}{:02d}.arl'.format(start_year, start_year + 1))
-arl_path = os.path.join(arl_data_dir, 'jan2024_test_2.ARL') # 'dec2023_test.ARL'
+arl_path = os.path.join(arl_data_dir, 'jan2024_test_new.ARL') # 'dec2023_test.ARL'
 
 # looping through IDs and times  
 unique_IDs = range(1221, 1234)
