@@ -8,10 +8,12 @@ era5_file = "./era5/plevels_jan2024_test_2.nc" # convert to netCDF first
 # "./era5/plevels_dec2023_test.nc"
 ds = pyg.open(era5_file)
 
-# make gridplot of omega(p,t) at a point (units: Pa s^-1)
+# make gridplot of omega(p,t) at a point (units: Pa s^-1) from reanalysis data 
 def plot_omega_ts(lat, lon, sdate, edate, title, out_file):
     omega = ds.w(lat = lat, lon = lon, l_level = np.arange(400,1001,50), time=(sdate,edate)) 
     omega_grid = omega[:,::-1,0,0].transpose() # time, level at fixed lat, lon
+    #print(omega_grid.shape)
+    print(omega_grid[:,0]) # omega at 0Z
 
     omega_paxis = omega.level[:]
     omega_taxis = omega.time[:]
@@ -68,7 +70,7 @@ plot_omega_ts(41.7, -71.4, sdate, edate,
 plot_omega_ts(44.1, -70.3, sdate, edate,
     "Omega Grid Plot for Lewiston/KLEW (40.9 N, 70.3 W)", "121823_lewiston_omega.pdf")"""
 plot_omega_ts(39.2, -76.5, sdate, edate, "Omega Grid Plot for Baltimore (39.2 N, 76.5 W)", "011024_baltimore_omega.pdf")
-plot_omega_ts(41.8, -71.5, sdate, edate, "Omega Grid Plot for Providence (41.8 N, 71.5 W)", "011024_providence_omega.pdf")
+#plot_omega_ts(41.8, -71.5, sdate, edate, "Omega Grid Plot for Providence (41.8 N, 71.5 W)", "011024_providence_omega.pdf")
 
 
 

@@ -345,7 +345,7 @@ class TrajectoryFile:
         fig.savefig("./figures/" + out_file)
         #plt.show()
     
-    # plots Lagrangian omega using two methods
+    # plots Lagrangian omega(x,y,p,t) using two methods
     # Method 1: estimate w via reanalysis-derived values at nearest p surface and gridpoint 
     # Method 2: coarse estimation of omega using traj pressure output 
     # (self, out_file, case_number, title, lat, lon)
@@ -384,7 +384,7 @@ class TrajectoryFile:
                 # loop through each pt in a trajectory 
                 date2 = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")  
                 date3 = date2.replace(year = date2.year + 2000)
-                date_str = date3.strftime("%H:%M:%S %d %b %Y")
+                date_str = date3.strftime("%H:%M %d %b %Y") # :%S
                 
                 ### Method 1: estimate w via reanalysis-derived values at nearest p surface and gridpoint
                 # Find two adjacent pressure levels for interpolation
@@ -442,7 +442,7 @@ class TrajectoryFile:
         X, Y = np.meshgrid(traj_ages, traj_nums) 
         cmap = cm.get_cmap('bwr')
         #norm1 = plt.Normalize(np.nanmin(omega_grid1), -np.nanmin(omega_grid1)) # -6, 6?
-        norm = plt.Normalize(-3, 3) # -3, 3
+        norm = plt.Normalize(-6, 6) # -3, 3 or -6, 6
 
         # plotting code
         c1 = ax1.pcolormesh(X, Y, omega_grid1, cmap=cmap, norm=norm)
@@ -523,15 +523,14 @@ class TrajectoryFile:
                 e5_heights = e5_heights/9.8 # get height (in m) instead of geopotential
                 e5_sphums = 1000*ds_era5.q(latitude=lat, longitude=lon, time=date_str).squeeze()[:] # level?
                 
-                if age == -18 and traj_num == 1:
+                """if age == -18 and traj_num == 1:
                     print(e5_heights)
                     print(e5_sphums)
                     print(lat)
                     print(lon)
                     print(date_str)
                     print(ds_era5.z(latitude=lat, longitude=lon, time=date_str))
-                    print(ds_era5.q(latitude=lat, longitude=lon, time=date_str))
-
+                    print(ds_era5.q(latitude=lat, longitude=lon, time=date_str))"""
 
                 for i in range(1, len(pressure_levels)):  
                     if height > e5_heights[i]:
@@ -543,18 +542,18 @@ class TrajectoryFile:
 
                 if height < e5_heights[-1]: # interpolate q between 1000 hPa height and zero 
                     upper_level_height = e5_heights[-1]
-                    lower_level_height = 0
+                    lower_level_height = 0 
                     upper_q = e5_sphums[-1]
                     lower_q = e5_sphums[-1] + ((e5_sphums[-1] - e5_sphums[-2])/(e5_heights[-1] - e5_heights[-2]))*e5_heights[-1]
 
-                if age == -18 and traj_num == 1:
+                """if age == -18 and traj_num == 1:
                     print(height)
                     print(i, pressure_levels[i])
                     print(upper_level_height)
                     print(lower_level_height)
                     print(sphum)
                     print(upper_q)
-                    print(lower_q)
+                    print(lower_q)"""
 
                 # linear interpolation
                 q_interp = np.interp(height, [lower_level_height, upper_level_height], [lower_q, upper_q])
@@ -668,38 +667,87 @@ class TrajectoryFile:
 
         plt.savefig("./figures/" + out_file)
 
+    # plots ERA-5 profile, ARL profile, and trajectory profile
+    def plot_init_sphum_profiles(self, ds_era5, arl_sphums, out_file): 
+        fig, ax = plt.subplots()
+
+        era5_plevels = [300, 350, 400, 450, 500, 550, 600, 650, 700, 750,
+            775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
+        arl_plevels = era5_plevels
+
+        lat = self.data_1h.loc[1]['lat'].values[-1]
+        lon = self.data_1h.loc[1]['lon'].values[-1]
+        date = self.data_1h.loc[1]['datetime'].values[-1]
+        date2 = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+        date3 = date2.replace(year = date2.year + 2000)
+        date_str = date3.strftime("%H:%M %d %b %Y")
+
+        traj_plevels = np.zeros(30)
+        traj_sphums = np.zeros(30)
+        for i in range(1, self.ntraj + 1): 
+            traj_plevels[i-1] = self.data_1h.loc[i]['pressure (hPa)'].values[-1] # get final p level at each trajectory 
+            traj_sphums[i-1] = self.data_1h.loc[i]['specific humidity (g/kg)'].values[-1]
+        
+        era5_sphums = 1000*ds_era5.q(latitude=lat, longitude=lon, time=date_str).squeeze()[:]
+        # arl_sphums will be provided by the user 
+
+        print(traj_plevels)
+        print(traj_sphums)
+
+        ax.plot(era5_sphums, era5_plevels, color="blue", marker="o", label="ERA-5")
+        ax.plot(arl_sphums, arl_plevels, color="green", 
+            linestyle=(0,(5,10)), marker="o", markerfacecolor="none", label="ARL profile")
+        ax.plot(traj_sphums, traj_plevels, color="orange", linestyle="dashed", marker="x",
+            label="HYSPLIT traj file \n" + r"$\bf{" + "omega (0)" + "}$") # omega (0) or diverge (5)
+        ax.set_xlabel("Specific humidity (g/kg)", fontsize=12)
+        ax.set_ylabel("Pressure (hPa)", fontsize=12)
+        ax.yaxis.set_inverted(True)
+        
+        ax.set_title("Specific humidity profiles at lat " + str(lat) + ", lon " + str(lon) 
+            + "\n" + date_str, fontsize=14, fontweight='bold') 
+        ax.legend()
+
+        plt.savefig("./figures/" + out_file)
+
+        ## add a legend
+
+
 # might be useful to plot time series (ht vs time) of trajectories?
 
 # Example with test case + animate files
 path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
-case_nums = range(1021, 1022) ### change as needed
+case_nums = range(1221, 1234) ### change as needed # 1021, 1034 and 1221, 1234
 hours = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
-for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
-    #out_file = f"{case_num}_011024_{hour}_trajmaps.png"
-    #out_file = f"{case_num}_011024_{hour}_omega_gridplot.png"
-    out_file = f"{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
+""" for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
+    out_file = f"{case_num}_011024_{hour}_trajmaps.png"
+    #out_file = f"{case_num}_011024_{hour}_omega_lagr_gridplot.png"
+    #out_file = f"{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
     fn = path + f"traj_{case_num}.traj"
     traj_file = TrajectoryFile(fn) 
-    #traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
+    #traj_file.plot_sphum_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+        #"Specific humidity gridplots (g/kg) following trajectories \nending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file)
+    traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
     #traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-       #f"Omega gridplots (Pa/s) following trajectories ending at Providence {hour} UTC", out_file) ### 
-    traj_file.plot_sphum_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-        "Specific humidity gridplots (g/kg) following trajectories \nending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
-    print("Completed " + out_file) 
+       #f"Omega gridplots (Pa/s) following trajectories ending at Baltimore {hour} UTC", out_file) ### 
+    #traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+        #"Omega gridplots (Pa/s) following trajectories ending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
+    print("Completed " + out_file) """
 
-"""fn = []
+""" fn = []
 for case_num, hour in zip(case_nums, hours):
     #filepath = f"./figures/{case_num}_121823_{hour}_trajmaps.png"
     #filepath = f"./figures/{case_num}_011024_{hour}_omega_gridplot.png"
-    filepath = f"./figures/{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
+    #filepath = f"./figures/{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
+    filepath = f"./figures/{case_num}_011024_{hour}_trajmaps.png"
+    #filepath = f"./figures/{case_num}_011024_{hour}_omega_lagr_gridplot.png"
     fn.append(filepath)
 images = []
 
 for filename in fn:
     images.append(iio.imread(filename))
     print("Completed " + filename)
-iio.imwrite('./figures/011024_baltimore_sphum_lagr_gridplot.gif', images, duration = 3000, loop = 0) ###  """
+iio.imwrite('./figures/011024_baltimore_trajmaps_vert5.gif', images, duration = 3000, loop = 0) ### """
 
 """path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
 case_num = 1021 ###
@@ -735,6 +783,16 @@ traj_file = TrajectoryFile(path + "traj_1041.traj")
 traj_file.plot_time_series("011024_providence_precip_ts.pdf", 1041, 
     "Precipitation Time Series for Providence (41.8 N, 71.5 W)", 41.8, -71.5) """
 
+# plot initial specific humidity profiles
+traj_file = TrajectoryFile(path + "traj_1021.traj") ##
+arl_sphums = [0.309, 0.699, 1.208, 1.897, 2.573, 3.412, 4.341, 5.103, 5.652, 6.440,
+            6.847, 7.508, 8.122, 8.510, 8.747, 8.807, 8.843, 8.841, 8.736, 8.345] ## 1021, 1221
+"""arl_sphums = [0.0225, 0.0523, 0.0471, 0.113, 0.190, 0.118, 0.192, 1.357, 3.528, 3.767,
+            3.451, 3.482, 4.229, 5.614, 7.239, 8.599, 9.499, 9.769, 9.409, 9.111]""" ## 1026, 1226
+# get the corresponding profile (in order of 300-1000 hPa)
+outfile = "1021_011024_00_init_sphum.png" ##
+traj_file.plot_init_sphum_profiles(pyg.open("./era5/plevels_jan2024_test_2.nc"), arl_sphums,
+    outfile)
 
 
 

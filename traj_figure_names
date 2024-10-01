@@ -13,13 +13,10 @@ __LIST OF CASE NUMBERS__
 1120-1139: Dec 18 2023 00-18 UTC for Lewiston, multiple levels
 1140: Jan 20 2024 12 UTC, Baltimore
 
-1221-1233: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (updated SETUP files with DIFW/DIFR)
+1221-1233: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (vertical motion option 5)
 
+"""1221-1233: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (updated SETUP files with DIFW/DIFR)
+1241-1253: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (tratio=0.5)
+1261-1273: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (tratio=0.25)
+1281-1293: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (tratio=0.1)"""
 
-
-
-
-
-1221-1233: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (test case, convection CAPEMIN=-1)
-- make omega Lagr gridplots
-- trajectory GIFs

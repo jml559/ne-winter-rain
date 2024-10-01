@@ -55,7 +55,7 @@ def make_CONTROL_local(unique_ID, t, traj_heights, track_time, control_dir, traj
         # test case time, lat, lon:
         #t = cftime.DatetimeGregorian(2024, 1, 10, 12, 0, 0) 
         lat = [39.2] # [39.2, 40.9, 41.7, 44.1]
-        lon = [-76.5] #[-76.7, -74.3, -71.4, -70.3]
+        lon = [-76.5] #[-76.5, -74.3, -71.4, -70.3]
         
         # Start time:
         f.write('{:02d} {:02d} {:02d} {:02d}\n'.format(t.year, t.month, t.day, t.hour))
@@ -69,7 +69,7 @@ def make_CONTROL_local(unique_ID, t, traj_heights, track_time, control_dir, traj
         # Duration of trajectory in hours:
         f.write('{:d}\n'.format(track_time))
         # Vertical motion option:
-        f.write('0\n') # 0 to use data's vertical velocity fields
+        f.write('5\n') # 5 to use divergence # 0 to use data's vertical velocity fields
         # Top of model:
         f.write('15000.0\n')  # in meters above ground level; trajectories terminate when they reach this level
         # Number of input files:
@@ -112,7 +112,7 @@ if t.month < 4:
 arl_path = os.path.join(arl_data_dir, 'jan2024_test_new.ARL') # 'dec2023_test.ARL'
 
 # looping through IDs and times  
-unique_IDs = range(1221, 1234)
+unique_IDs = range(1221, 1233) # change as needed
 start_time = cftime.DatetimeGregorian(2024, 1, 10, 0, 0, 0)  
 
 for i, unique_ID in enumerate(unique_IDs):
