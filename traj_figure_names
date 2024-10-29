@@ -5,7 +5,7 @@ where the date is the end time (or back traj init time)
 __LIST OF CASE NUMBERS__
 1011: Jan 10 2024 12 UTC, Baltimore and Providence case study 
 1012: Jan 10 2024 00 UTC, "
-1021-1033: Jan 10 2024 00-12 UTC for Baltimore, multiple levels
+1021-1033: Jan 10 2024 00-12 UTC for Baltimore, multiple levels **rerun with corrected CFG file
 1041-1053: Jan 10 2024 00-12 UTC for Providence, multiple levels
 1061-1079: Dec 18 2023 00-18 UTC for Baltimore, multiple levels
 1081-1099: Dec 18 2023 00-18 UTC for Caldwell, multiple levels
@@ -13,7 +13,13 @@ __LIST OF CASE NUMBERS__
 1120-1139: Dec 18 2023 00-18 UTC for Lewiston, multiple levels
 1140: Jan 20 2024 12 UTC, Baltimore
 
-1221-1233: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (vertical motion option 5)
+1321-1333: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (vertical motion option 5)
+**rerun with corrected CFG file
+
+
+
+
+
 
 """1221-1233: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (updated SETUP files with DIFW/DIFR)
 1241-1253: Jan 10 2024 00-12 UTC for Baltimore, multiple levels (tratio=0.5)

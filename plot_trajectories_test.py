@@ -709,30 +709,66 @@ class TrajectoryFile:
 
         plt.savefig("./figures/" + out_file)
 
-        ## add a legend
+    # plot ERA-5 profile, ARL profile, and trajectory variable/value *at a single point*
+    # age is age of trajectory (hrs befor initialization, use NEGATIVE INDEXING)
+    # traj_num is the number of the trajectory
+    # date_str parameter must be in format "%H:%M %d %b %Y", e.g., "00:00 10 Jan 2024"
+    def plot_point_sphum_profiles(self, ds_era5, age, traj_num, arl_sphums, out_file): 
+        fig, ax = plt.subplots()
 
+        era5_plevels = [300, 350, 400, 450, 500, 550, 600, 650, 700, 750,
+            775, 800, 825, 850, 875, 900, 925, 950, 975, 1000]
+        arl_plevels = era5_plevels 
+
+        lat = self.data_1h.loc[traj_num]['lat'].values[age-1]
+        lon = self.data_1h.loc[traj_num]['lon'].values[age-1]
+        date = self.data_1h.loc[traj_num]['datetime'].values[age-1]
+        date2 = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+        date3 = date2.replace(year = date2.year + 2000)
+        date_str = date3.strftime("%H:%M %d %b %Y")
+
+        traj_plevel = self.data_1h.loc[traj_num]['pressure (hPa)'].values[age-1]
+        traj_sphum = self.data_1h.loc[traj_num]['specific humidity (g/kg)'].values[age-1]
+
+        era5_sphums = 1000*ds_era5.q(latitude=lat, longitude=lon, time=date_str).squeeze()[:]
+        # arl_sphums will be provided by the user 
+
+        ax.plot(era5_sphums, era5_plevels, color="blue", marker="o", label="ERA-5")
+        ax.plot(arl_sphums, arl_plevels, color="green", 
+            linestyle=(0,(5,10)), marker="o", markerfacecolor="none", label="ARL profile")
+        ax.plot(traj_sphum, traj_plevel, color="orange", linestyle="dashed", marker="X",
+            label="HYSPLIT traj file \n" + r"$\bf{" + "diverge (5)" + "}$") # omega (0) or diverge (5)
+        ax.set_xlabel("Specific humidity (g/kg)", fontsize=12)
+        ax.set_ylabel("Pressure (hPa)", fontsize=12)
+        ax.yaxis.set_inverted(True)
+        
+        ax.set_title("Specific humidity profiles at lat " + str(lat) + ", lon " + str(lon) 
+            + "\n" + date_str, fontsize=14, fontweight='bold') 
+        ax.legend()
+
+        plt.savefig("./figures/" + out_file)
+
+    
 
 # might be useful to plot time series (ht vs time) of trajectories?
 
 # Example with test case + animate files
 path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
-case_nums = range(1221, 1234) ### change as needed # 1021, 1034 and 1221, 1234
+case_nums = range(1321, 1334) ### change as needed # 1021, 1034 and 1221, 1234
 hours = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
-""" for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
-    out_file = f"{case_num}_011024_{hour}_trajmaps.png"
-    #out_file = f"{case_num}_011024_{hour}_omega_lagr_gridplot.png"
+"""for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
+    #out_file = f"{case_num}_011024_{hour}_trajmaps.png"
+    out_file = f"{case_num}_011024_{hour}_omega_lagr_gridplot.png"
     #out_file = f"{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
     fn = path + f"traj_{case_num}.traj"
     traj_file = TrajectoryFile(fn) 
     #traj_file.plot_sphum_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
         #"Specific humidity gridplots (g/kg) following trajectories \nending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file)
-    traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
-    #traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-       #f"Omega gridplots (Pa/s) following trajectories ending at Baltimore {hour} UTC", out_file) ### 
-    #traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-        #"Omega gridplots (Pa/s) following trajectories ending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
-    print("Completed " + out_file) """
+    #traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
+    traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+        "Omega gridplots (Pa/s) following trajectories ending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
+    print("Completed " + out_file)"""
 
 """ fn = []
 for case_num, hour in zip(case_nums, hours):
@@ -784,18 +820,26 @@ traj_file.plot_time_series("011024_providence_precip_ts.pdf", 1041,
     "Precipitation Time Series for Providence (41.8 N, 71.5 W)", 41.8, -71.5) """
 
 # plot initial specific humidity profiles
-traj_file = TrajectoryFile(path + "traj_1021.traj") ##
+"""traj_file = TrajectoryFile(path + "traj_1021.traj") ##
 arl_sphums = [0.309, 0.699, 1.208, 1.897, 2.573, 3.412, 4.341, 5.103, 5.652, 6.440,
             6.847, 7.508, 8.122, 8.510, 8.747, 8.807, 8.843, 8.841, 8.736, 8.345] ## 1021, 1221
-"""arl_sphums = [0.0225, 0.0523, 0.0471, 0.113, 0.190, 0.118, 0.192, 1.357, 3.528, 3.767,
-            3.451, 3.482, 4.229, 5.614, 7.239, 8.599, 9.499, 9.769, 9.409, 9.111]""" ## 1026, 1226
+arl_sphums = [0.0225, 0.0523, 0.0471, 0.113, 0.190, 0.118, 0.192, 1.357, 3.528, 3.767,
+            3.451, 3.482, 4.229, 5.614, 7.239, 8.599, 9.499, 9.769, 9.409, 9.111] ## 1026, 1226
 # get the corresponding profile (in order of 300-1000 hPa)
 outfile = "1021_011024_00_init_sphum.png" ##
 traj_file.plot_init_sphum_profiles(pyg.open("./era5/plevels_jan2024_test_2.nc"), arl_sphums,
-    outfile)
+    outfile)"""
+
+# plot point specific humifity profiles
+"""traj_file = TrajectoryFile(path + "traj_1224.traj")
+arl_sphums = [0.383, 0.763, 0.907, 1.939, 1.496, 1.869, 3.068, 3.898, 4.533, 5.913,
+            6.843, 7.640, 8.938, 9.341, 9.631, 9.830, 9.953, 10.216, 10.323, 10.728]
+outfile = "1224_011024_03_age-8_traj2_sphum.png" ##
+traj_file.plot_point_sphum_profiles(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+    -8, 2, arl_sphums, outfile) # age, traj_num """
 
 
-
+# 37.997  -76.889
 
 
 

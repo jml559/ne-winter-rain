@@ -112,7 +112,7 @@ if t.month < 4:
 arl_path = os.path.join(arl_data_dir, 'jan2024_test_new.ARL') # 'dec2023_test.ARL'
 
 # looping through IDs and times  
-unique_IDs = range(1221, 1233) # change as needed
+unique_IDs = range(1321, 1333) # change as needed
 start_time = cftime.DatetimeGregorian(2024, 1, 10, 0, 0, 0)  
 
 for i, unique_ID in enumerate(unique_IDs):
