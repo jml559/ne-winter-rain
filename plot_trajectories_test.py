@@ -757,18 +757,18 @@ path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/workin
 case_nums = range(1321, 1334) ### change as needed # 1021, 1034 and 1221, 1234
 hours = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
-"""for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
-    #out_file = f"{case_num}_011024_{hour}_trajmaps.png"
-    out_file = f"{case_num}_011024_{hour}_omega_lagr_gridplot.png"
+for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums and hours jointly
+    out_file = f"{case_num}_011024_{hour}_trajmaps.png"
+    #out_file = f"{case_num}_011024_{hour}_omega_lagr_gridplot.png"
     #out_file = f"{case_num}_011024_{hour}_sphum_lagr_gridplot.png"
     fn = path + f"traj_{case_num}.traj"
     traj_file = TrajectoryFile(fn) 
     #traj_file.plot_sphum_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
         #"Specific humidity gridplots (g/kg) following trajectories \nending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file)
-    #traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
-    traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
-        "Omega gridplots (Pa/s) following trajectories ending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
-    print("Completed " + out_file)"""
+    traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
+    #traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
+        #"Omega gridplots (Pa/s) following trajectories ending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
+    print("Completed " + out_file)
 
 """ fn = []
 for case_num, hour in zip(case_nums, hours):
