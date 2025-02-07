@@ -7,8 +7,9 @@
 # Ignore everything inside ne-winter-rain/ghcn/
 ghcn/*
 
-# Allow .py files inside ne-winter-rain/ghcn/
+# Allow .py and .txt files inside ne-winter-rain/ghcn/
 !ghcn/*.py
+!ghcn/*.txt
 
 #!/local1/storage1/jml559/ne-winter-rain/ghcn/*.py
 #!ghcn/*

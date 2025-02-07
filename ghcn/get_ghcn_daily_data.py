@@ -85,5 +85,3 @@ def count_complete_stations(start_year, end_year, threshold):
 syr = 1960
 eyr = 2024
 print(f"\nComplete stations in {syr}-{eyr}: {count_complete_stations(syr, eyr, 0.8)}") 
-
-# hi
