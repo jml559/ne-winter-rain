@@ -1,5 +1,19 @@
-*/
-!/local1/storage1/jml559/ne-winter-rain/ghcn/*.py
+# Ignore everything in ne-winter-rain/
+* 
+
+# Allow all files in ne-winter-rain/ (override previous rule)
+!*/
+
+# Ignore everything inside ne-winter-rain/ghcn/
+ghcn/*
+
+# Allow .py files inside ne-winter-rain/ghcn/
+!ghcn/*.py
+
+#!/local1/storage1/jml559/ne-winter-rain/ghcn/*.py
 #!ghcn/*
 #ghcn/*
 #!ghcn/*.py
+*.MESSAGE
+*.out
+
