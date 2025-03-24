@@ -98,7 +98,7 @@ syr = 1960
 eyr = 2024
 print(f"\nComplete stations in {syr}-{eyr}: {count_complete_stations(syr, eyr, 0.9)}")
  
-def get_extreme_events(station_ids, start_year, end_year):
+"""def get_extreme_events(station_ids, start_year, end_year):
     date_ranges = [] # stores time intervals Jan 1-Feb 28/29, and Dec 1-Dec 31
 
     # appends start and end dates to date_ranges array
@@ -156,7 +156,7 @@ def get_extreme_events(station_ids, start_year, end_year):
             for i, rainfall in enumerate(rainfall_values) if rainfall >= threshold]
         extreme_events[station_id] = extreme_days
     
-    return extreme_events
+    return extreme_events"""
 
 """syr, eyr = 1960, 2024
 sufficiently_complete_stations = ["9434", "9443", "9488", "9495", "9503", "9518", "9527", "9535"]  # Example UIDs
