@@ -1677,6 +1677,394 @@ Station USC00304174 with lat 42.449 and lon -76.449
 2023-12-11: 0.92 in
 2023-12-18: 1.55 in
 
+Locations with extreme precip on 19620106:
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 38.341 and lon -75.513
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 39.873 and lon -75.227
+lat 41.333 and lon -75.723
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19660213:
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 39.173 and lon -76.684
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.207 and lon -75.980
+lat 43.117 and lon -77.675
+lat 39.873 and lon -75.227
+lat 41.243 and lon -76.922
+lat 44.468 and lon -73.150
+lat 40.485 and lon -80.214
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19681204:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.074 and lon -78.452
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19691226:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 42.361 and lon -71.010
+lat 38.341 and lon -75.513
+lat 39.674 and lon -75.606
+lat 42.747 and lon -73.799
+lat 39.870 and lon -76.863
+lat 41.243 and lon -76.922
+lat 44.468 and lon -73.150
+lat 41.490 and lon -71.543
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19720219:
+lat 42.361 and lon -71.010
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.207 and lon -75.980
+lat 43.117 and lon -77.675
+lat 39.873 and lon -75.227
+lat 41.243 and lon -76.922
+lat 41.490 and lon -71.543
+lat 41.164 and lon -73.127
+
+Locations with extreme precip on 19730202:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 38.341 and lon -75.513
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 39.873 and lon -75.227
+lat 41.243 and lon -76.922
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19731221:
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.747 and lon -73.799
+lat 44.933 and lon -74.848
+lat 42.074 and lon -78.452
+lat 39.870 and lon -76.863
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+lat 42.449 and lon -76.449
+
+Locations with extreme precip on 19760127:
+lat 40.683 and lon -74.169
+lat 38.341 and lon -75.513
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.207 and lon -75.980
+lat 42.747 and lon -73.799
+lat 39.873 and lon -75.227
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19790121:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 38.341 and lon -75.513
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.747 and lon -73.799
+lat 39.870 and lon -76.863
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 41.490 and lon -71.543
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19820104:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 39.873 and lon -75.227
+lat 44.468 and lon -73.150
+lat 41.490 and lon -71.543
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19831213:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 40.683 and lon -74.169
+lat 40.779 and lon -73.969
+lat 42.207 and lon -75.980
+lat 42.747 and lon -73.799
+lat 39.870 and lon -76.863
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 40.650 and lon -75.448
+lat 42.449 and lon -76.449
+
+Locations with extreme precip on 19860126:
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 38.341 and lon -75.513
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.747 and lon -73.799
+lat 39.870 and lon -76.863
+lat 44.468 and lon -73.150
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 19990103:
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 39.173 and lon -76.684
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 44.933 and lon -74.848
+lat 39.873 and lon -75.227
+lat 39.870 and lon -76.863
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+
+Locations with extreme precip on 20001217:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 42.361 and lon -71.010
+lat 39.674 and lon -75.606
+lat 42.747 and lon -73.799
+lat 39.870 and lon -76.863
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 40.650 and lon -75.448
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20080201:
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 39.173 and lon -76.684
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.207 and lon -75.980
+lat 43.117 and lon -77.675
+lat 39.873 and lon -75.227
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 40.485 and lon -80.214
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20080213:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 38.341 and lon -75.513
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 41.333 and lon -75.723
+lat 41.490 and lon -71.543
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20081211:
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 38.341 and lon -75.513
+lat 39.173 and lon -76.684
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 39.873 and lon -75.227
+lat 39.870 and lon -76.863
+lat 41.333 and lon -75.723
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20100125:
+lat 38.341 and lon -75.513
+lat 42.207 and lon -75.980
+lat 42.747 and lon -73.799
+lat 42.940 and lon -78.736
+lat 42.074 and lon -78.452
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 40.650 and lon -75.448
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20111207:
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 39.173 and lon -76.684
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.747 and lon -73.799
+lat 39.873 and lon -75.227
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20141209:
+lat 43.642 and lon -70.304
+lat 39.452 and lon -74.567
+lat 42.361 and lon -71.010
+lat 38.341 and lon -75.513
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.747 and lon -73.799
+lat 41.490 and lon -71.543
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20160224:
+lat 39.173 and lon -76.684
+lat 40.779 and lon -73.880
+lat 42.747 and lon -73.799
+lat 43.117 and lon -77.675
+lat 44.933 and lon -74.848
+lat 39.873 and lon -75.227
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 40.485 and lon -80.214
+lat 40.650 and lon -75.448
+
+Locations with extreme precip on 20180112:
+lat 42.207 and lon -75.980
+lat 42.940 and lon -78.736
+lat 43.117 and lon -77.675
+lat 44.933 and lon -74.848
+lat 39.873 and lon -75.227
+lat 42.074 and lon -78.452
+lat 41.243 and lon -76.922
+lat 44.468 and lon -73.150
+lat 40.485 and lon -80.214
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20190124:
+lat 43.642 and lon -70.304
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 46.870 and lon -68.017
+lat 40.779 and lon -73.880
+lat 42.207 and lon -75.980
+lat 42.747 and lon -73.799
+lat 42.074 and lon -78.452
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20231210:
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 39.173 and lon -76.684
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 39.873 and lon -75.227
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20231218:
+lat 43.205 and lon -71.503
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 42.361 and lon -71.010
+lat 38.341 and lon -75.513
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.207 and lon -75.980
+lat 42.747 and lon -73.799
+lat 44.933 and lon -74.848
+lat 39.873 and lon -75.227
+lat 39.870 and lon -76.863
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 41.490 and lon -71.543
+lat 40.650 and lon -75.448
+lat 41.164 and lon -73.127
+lat 41.937 and lon -72.682
+lat 42.449 and lon -76.449
+
+Locations with extreme precip on 20240109:
+lat 39.452 and lon -74.567
+lat 40.683 and lon -74.169
+lat 38.341 and lon -75.513
+lat 39.173 and lon -76.684
+lat 39.674 and lon -75.606
+lat 40.779 and lon -73.880
+lat 40.779 and lon -73.969
+lat 42.747 and lon -73.799
+lat 39.873 and lon -75.227
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 40.485 and lon -80.214
+lat 40.650 and lon -75.448
+lat 41.937 and lon -72.682
+
+Locations with extreme precip on 20241211:
+lat 43.642 and lon -70.304
+lat 46.870 and lon -68.017
+lat 42.361 and lon -71.010
+lat 38.341 and lon -75.513
+lat 42.207 and lon -75.980
+lat 42.747 and lon -73.799
+lat 41.243 and lon -76.922
+lat 41.333 and lon -75.723
+lat 44.468 and lon -73.150
+lat 41.490 and lon -71.543
+
 Extreme event occurrences ranked by date:
 2023-12-18: 21 stations
 1966-02-13: 16 stations
