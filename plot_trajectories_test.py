@@ -13,6 +13,7 @@ from datetime import datetime
 import calendar
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+import glob
 import os
 import imageio.v3 as iio
 
@@ -98,12 +99,13 @@ class TrajectoryFile:
         # set up column names, dtype, widths
         traj_columns = ['traj #', 'grid #', 'year', 'month', 'day', 'hour',
                         'minute', 'fhour', 'traj age', 'lat', 'lon', 'height (m)', 
-                        'pressure (hPa)', 'precip (mm)', 'specific humidity (g/kg)']
+                        'pressure (hPa)', 'precip (mm)', 'relative humidity (%)', 
+                        'specific humidity (g/kg)']
         traj_dtypes = {'traj #': int, 'grid #': int, 'year': int, 'month': int, 'day': int, 'hour': int,
                        'minute': int, 'fhour': int, 'traj age': int, 'lat': float, 'lon': float, 
                        'height (m)': float, 'pressure (hPa)': float, 'precip (mm)': float, 
-                       'specific humidity (g/kg)': float}
-        col_widths = [6, 6, 6, 6, 6, 6, 6, 6, 8, 9, 9, 9, 9, 9]
+                       'relative humidity (%)': float, 'specific humidity (g/kg)': float}
+        col_widths = [6, 6, 6, 6, 6, 6, 6, 6, 8, 9, 9, 9, 9, 9, 9]
         for var in self.diag_var_names:
             col_widths.append(9)
             traj_columns.append(var)
@@ -135,9 +137,9 @@ class TrajectoryFile:
         # new column: ordinal time (days since 0001-01-01 00:00:00)
         # min_time = cftime.date2num(cftime.datetime(7 + winter_idx, 12, 1),
         # time_object.units, calendar=time_object.calendar)
-        def traj_numtime(row):
+        """def traj_numtime(row):
             return cftime.date2num(row['cftime date'], units='days since 0001-01-01 00:00:00', calendar='Gregorian')
-        trajectories['ordinal time'] = trajectories.apply(traj_numtime, axis=1)
+        trajectories['ordinal time'] = trajectories.apply(traj_numtime, axis=1)"""
 
         # Store trajectories in increments of 1 hour and 3 hours
         # default self.data will be every 3 hours to match CAM output frequency
@@ -236,115 +238,190 @@ class TrajectoryFile:
     # print(f.ntraj)
     # print(f.direction) # etc. # need to initialize the object w/parameters  
 
-    def plot_trajectories(self, location, out_file):
-        # create subplots
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5), subplot_kw={'projection': ccrs.PlateCarree()})
-        #self.data_1h['datetime'] = pd.to_datetime(self.data_1h['datetime'], format='%y-%m-%d %H:%M:%S')
-        #end_time = self.data_1h.iloc[0]['datetime'].strftime('%-m-%-d-%y %H UTC')
-        fig.suptitle(f'Back trajectories ending {self.end_time} at ' 
-            + location + ', 3 days', fontweight="bold") # automate also back traj time (__-day back traj)
+    # def plot_trajectories(self, out_file):
+    #     # create subplots
+    #     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5), subplot_kw={'projection': ccrs.PlateCarree()})
 
-        for ax in [ax1, ax2]:
-            ax.set_extent([-110, -55, 15, 50], crs=ccrs.PlateCarree()) # -130, -55, 5, 50
-            ax.add_feature(cfeature.LAND)
-            ax.add_feature(cfeature.OCEAN)
-            ax.add_feature(cfeature.COASTLINE)
-            ax.add_feature(cfeature.BORDERS, linestyle=':')
-            ax.add_feature(cfeature.LAKES, alpha=0.5)
+    #     # only if plotting for a specific date
+    #     """self.data_1h['datetime'] = pd.to_datetime(self.data_1h['datetime'], format='%y-%m-%d %H:%M:%S')
+    #     end_time = self.data_1h.iloc[0]['datetime'].strftime('%-m-%-d-%y %H UTC')
+    #     fig.suptitle(f'Back trajectories ending {self.end_time} at ' 
+    #         + location + ', 3 days', fontweight="bold") # automate also back traj time (__-day back traj)"""
 
-        """for traj_num in range(traj_file.ntraj):
-            trajectory = traj_file.get_trajectory(traj_num + 1)
+    #     for ax in [ax1, ax2]:
+    #         ax.set_extent([-130, -55, 5, 50], crs=ccrs.PlateCarree()) # -130, -55, 5, 50
+    #         ax.add_feature(cfeature.LAND)
+    #         ax.add_feature(cfeature.OCEAN)
+    #         ax.add_feature(cfeature.COASTLINE)
+    #         ax.add_feature(cfeature.BORDERS, linestyle=':')
+    #         ax.add_feature(cfeature.LAKES, alpha=0.5)
 
-            lats = trajectory['lat'].values
-            lons = trajectory['lon'].values
-            start_height = trajectory.loc[(traj_num + 1, 0), 'height (m)']
+    #     """for traj_num in range(traj_file.ntraj):
+    #         trajectory = traj_file.get_trajectory(traj_num + 1)
 
-            # Plotting trajectories
-            ax.plot(lons, lats, transform=ccrs.PlateCarree())
+    #         lats = trajectory['lat'].values
+    #         lons = trajectory['lon'].values
+    #         start_height = trajectory.loc[(traj_num + 1, 0), 'height (m)']
 
-            # Adding markers at 24-hour intervals
-            for idx, traj_age in enumerate(trajectory.index.get_level_values('traj age')):
-                if abs(traj_age) % 24 == 0 and traj_age != 0:
-                    ax.plot(lons[idx], lats[idx], marker='o', markersize=5, color=color, transform=ccrs.PlateCarree())  """ 
+    #         # Plotting trajectories
+    #         ax.plot(lons, lats, transform=ccrs.PlateCarree())
+
+    #         # Adding markers at 24-hour intervals
+    #         for idx, traj_age in enumerate(trajectory.index.get_level_values('traj age')):
+    #             if abs(traj_age) % 24 == 0 and traj_age != 0:
+    #                 ax.plot(lons[idx], lats[idx], marker='o', markersize=5, color=color, transform=ccrs.PlateCarree())  """ 
         
+    #     cmap_1 = cm.get_cmap('plasma_r')
+    #     cmap_2 = cm.get_cmap('viridis')
+    #     norm_1 = plt.Normalize(0, 6000)
+    #     norm_2 = plt.Normalize(0, 14)
+
+    #     # Plot each trajectory
+    #     for traj_num in range(1, self.ntraj + 1):
+    #         trajectory = self.data_1h.loc[traj_num]
+
+    #         lats = trajectory['lat'].values
+    #         lons = trajectory['lon'].values
+    #         heights = trajectory['height (m)'].values
+    #         rel_hum = trajectory['relative humidity (%)'].values
+    #         sp_hum = trajectory['specific humidity (g/kg)'].values
+    #         traj_age = trajectory.index.get_level_values('traj age')
+
+    #         # condition 1: RH >= 80%
+    #         cond_1 = rel_hum[traj_age == 0][0] >= 80
+
+    #         # condition 2: sp_hum decreases by at least 0.2 g/kg in past 6 hours 
+    #         sp_hum_0 = sp_hum[traj_age == 0][0]
+    #         sp_hum_n6 = sp_hum[traj_age == -6][0]
+    #         cond_2 = sp_hum_0 - sp_hum_n6 <= -0.2 
+
+    #         if cond_1 and cond_2: 
+    #             # Plot based on trajectory height z(x(t),y(t),t)
+    #             for i in range(len(lats)):
+    #                 ax1.plot(lons[i:i+2], lats[i:i+2], color=cmap_1(norm_1(heights[i])), linewidth=1, transform=ccrs.PlateCarree())
+
+    #                 # adding markers at 24-h intervals
+    #                 traj_age = trajectory.index.get_level_values('traj age')[i] 
+    #                 if abs(traj_age) % 24 == 0 and traj_age != 0:
+    #                     ax1.plot(lons[i], lats[i], marker='o', markersize=5, color=cmap_1(norm_1(heights[i])), transform=ccrs.PlateCarree())
+    #                 #if traj_age == 0:
+    #                     #ax.plot(lons[i], lats[i], marker='*', markersize=7, color=cmap(norm(heights[i])), transform=ccrs.PlateCarree())"""
+
+    #             # Plot based on specific humidity q(x(t),y(t),t)
+    #             for i in range(len(lats)):
+    #                 ax2.plot(lons[i:i+2], lats[i:i+2], color=cmap_2(norm_2(sp_hum[i])), linewidth=1, transform=ccrs.PlateCarree())
+
+    #                 # adding markers at 24-h intervals
+    #                 traj_age = trajectory.index.get_level_values('traj age')[i]
+    #                 if abs(traj_age) % 24 == 0 and traj_age != 0:
+    #                     ax2.plot(lons[i], lats[i], marker='o', markersize=5, color=cmap_2(norm_2(sp_hum[i])), transform=ccrs.PlateCarree())
+
+    #         # Color code based on starting height h(t = 0)
+    #         #start_height = trajectory.loc[(traj_num, 0), 'height (m)']
+    #         """ start_height = trajectory.loc[trajectory.index.get_level_values('traj age') == 0, 'height (m)'].values[0]
+    #         if start_height == 1000:
+    #             color = 'green'
+    #         elif start_height == 2000:
+    #             color = 'blue' """
+
+    #         # Add custom legend
+    #         """legend_elements = [
+    #             Line2D([0], [0], color='green', lw=2, label='1000 m'),
+    #             Line2D([0], [0], color='blue', lw=2, label='2000 m')
+    #         ]"""
+
+    #         #ax.legend(handles=legend_elements, title='final m ASL', title_fontsize='large', loc='lower left')
+    #         #ax.plot(trajectory['lon'], trajectory['lat'], color=cmap(norm(heights[i])), linewidth=1) # color=color
+
+    #         # Adding markers at 24-h intervals
+    #         """for i, traj_age in enumerate(trajectory.index.get_level_values('traj age')):
+    #             ax.plot(trajectory['lon'], trajectory['lat'], color=cmap(norm(heights[i])), linewidth=1, transform=ccrs.PlateCarree())
+    #             if abs(traj_age) % 24 == 0 and traj_age != 0:
+    #                 ax.plot(lons[i], lats[i], marker='o', markersize=5, color=cmap(norm(heights[i])), transform=ccrs.PlateCarree())
+    #             if traj_age == 0:
+    #                 ax.plot(lons[i], lats[i], marker='*', markersize=7, color=cmap(norm(heights[i])), transform=ccrs.PlateCarree())"""
+        
+    #         #ax.set_title('Back trajectories ending 1-10-24 12 UTC') # automate the date string and also back traj time (__-day back traj)
+    #         #plt.show()
+
+    #     # Legends and plotting
+    #     sm1 = plt.cm.ScalarMappable(cmap=cmap_1, norm=norm_1)
+    #     cbar1 = plt.colorbar(sm1, ax=ax1, orientation='vertical', extend='max', fraction=0.035, pad=0.03)
+    #     cbar1.set_ticks([0, 1000, 2000, 3000, 4000, 5000, 6000])
+
+    #     sm2 = plt.cm.ScalarMappable(cmap=cmap_2, norm=norm_2)
+    #     cbar2 = plt.colorbar(sm2, ax=ax2, orientation='vertical', extend='max', fraction=0.035, pad=0.03)
+    #     cbar2.set_ticks([0, 2, 4, 6, 8, 10, 12, 14])
+
+    #     ax1.set_title('Height (m)')
+    #     ax2.set_title('Specific Humidity (g/kg)')
+        
+    #     fig.subplots_adjust(top=0.85, hspace=0.01, left=0.03, right=0.97)
+    #     fig.savefig("./figures/" + out_file)
+    #     #plt.show() 
+    
+    def plot_trajectories(self, axes):
+        ax1, ax2 = axes
         cmap_1 = cm.get_cmap('plasma_r')
         cmap_2 = cm.get_cmap('viridis')
-
-        # Plot each trajectory
+        norm_1 = plt.Normalize(0, 6000)
+        norm_2 = plt.Normalize(0, 14)
+        
         for traj_num in range(1, self.ntraj + 1):
             trajectory = self.data_1h.loc[traj_num]
 
             lats = trajectory['lat'].values
             lons = trajectory['lon'].values
             heights = trajectory['height (m)'].values
+            rel_hum = trajectory['relative humidity (%)'].values
             sp_hum = trajectory['specific humidity (g/kg)'].values
-            
-            # Plot based on trajectory height z(x(t),y(t),t)
-            norm_1 = plt.Normalize(0, 6000)
-            for i in range(len(lats)):
-                ax1.plot(lons[i:i+2], lats[i:i+2], color=cmap_1(norm_1(heights[i])), linewidth=1, transform=ccrs.PlateCarree())
+            traj_age = trajectory.index.get_level_values('traj age')
 
-                # adding markers at 24-h intervals
-                traj_age = trajectory.index.get_level_values('traj age')[i] 
-                if abs(traj_age) % 24 == 0 and traj_age != 0:
-                    ax1.plot(lons[i], lats[i], marker='o', markersize=5, color=cmap_1(norm_1(heights[i])), transform=ccrs.PlateCarree())
-                #if traj_age == 0:
-                    #ax.plot(lons[i], lats[i], marker='*', markersize=7, color=cmap(norm(heights[i])), transform=ccrs.PlateCarree())"""
+            # Conditions:
+            # 1. Relative Humidity at age 0 >= 80%
+            cond_1 = rel_hum[traj_age == 0][0] >= 80
+            # 2. Specific humidity has decreased by at least 0.2 g/kg over the past 6 hours.
+            sp_hum_0 = sp_hum[traj_age == 0][0]
+            sp_hum_n6 = sp_hum[traj_age == -6][0]
+            cond_2 = sp_hum_0 - sp_hum_n6 <= -0.2
 
-            # Plot based on specific humidity q(x(t),y(t),t)
-            norm_2 = plt.Normalize(0, 14)
-            for i in range(len(lats)):
-                ax2.plot(lons[i:i+2], lats[i:i+2], color=cmap_2(norm_2(sp_hum[i])), linewidth=1, transform=ccrs.PlateCarree())
+            # Plot only if both conditions are met.
+            if cond_1 and cond_2:
+                # optional: restrict trajectories to 3 days
+                mask_3days = (traj_age >= -72)
+                lats = lats[mask_3days]
+                lons = lons[mask_3days]
+                heights = heights[mask_3days]
+                sp_hum = sp_hum[mask_3days]
+                traj_age = traj_age[mask_3days]
 
-                # adding markers at 24-h intervals
-                traj_age = trajectory.index.get_level_values('traj age')[i]
-                if abs(traj_age) % 24 == 0 and traj_age != 0:
-                    ax2.plot(lons[i], lats[i], marker='o', markersize=5, color=cmap_2(norm_2(sp_hum[i])), transform=ccrs.PlateCarree())
+                # Plot on ax1 (using height-based color)
+                for i in range(len(lats) - 1):
+                    ax1.plot(lons[i:i+2], lats[i:i+2],
+                             color=cmap_1(norm_1(heights[i])),
+                             linewidth=0.2,
+                             transform=ccrs.PlateCarree())
+                    # Markers at 24-hr intervals:
+                    """age_val = trajectory.index.get_level_values('traj age')[i]
+                    if abs(age_val) % 24 == 0 and age_val != 0:
+                        ax1.plot(lons[i], lats[i],
+                                 marker='o', markersize=5,
+                                 color=cmap_1(norm_1(heights[i])),
+                                 transform=ccrs.PlateCarree())"""
 
-            # Color code based on starting height h(t = 0)
-            #start_height = trajectory.loc[(traj_num, 0), 'height (m)']
-            """ start_height = trajectory.loc[trajectory.index.get_level_values('traj age') == 0, 'height (m)'].values[0]
-            if start_height == 1000:
-                color = 'green'
-            elif start_height == 2000:
-                color = 'blue' """
+                # Plot on ax2 (using specific humidity)
+                for i in range(len(lats) - 1):
+                    ax2.plot(lons[i:i+2], lats[i:i+2],
+                             color=cmap_2(norm_2(sp_hum[i])),
+                             linewidth=0.2,
+                             transform=ccrs.PlateCarree())
+                    """age_val = trajectory.index.get_level_values('traj age')[i]
+                    if abs(age_val) % 24 == 0 and age_val != 0:
+                        ax2.plot(lons[i], lats[i],
+                                 marker='o', markersize=5,
+                                 color=cmap_2(norm_2(sp_hum[i])),
+                                 transform=ccrs.PlateCarree()) """
 
-            # Add custom legend
-            """legend_elements = [
-                Line2D([0], [0], color='green', lw=2, label='1000 m'),
-                Line2D([0], [0], color='blue', lw=2, label='2000 m')
-            ]"""
-
-            #ax.legend(handles=legend_elements, title='final m ASL', title_fontsize='large', loc='lower left')
-            #ax.plot(trajectory['lon'], trajectory['lat'], color=cmap(norm(heights[i])), linewidth=1) # color=color
-
-            # Adding markers at 24-h intervals
-            """for i, traj_age in enumerate(trajectory.index.get_level_values('traj age')):
-                ax.plot(trajectory['lon'], trajectory['lat'], color=cmap(norm(heights[i])), linewidth=1, transform=ccrs.PlateCarree())
-                if abs(traj_age) % 24 == 0 and traj_age != 0:
-                    ax.plot(lons[i], lats[i], marker='o', markersize=5, color=cmap(norm(heights[i])), transform=ccrs.PlateCarree())
-                if traj_age == 0:
-                    ax.plot(lons[i], lats[i], marker='*', markersize=7, color=cmap(norm(heights[i])), transform=ccrs.PlateCarree())"""
-        
-        #ax.set_title('Back trajectories ending 1-10-24 12 UTC') # automate the date string and also back traj time (__-day back traj)
-        #plt.show()
-
-        # Legends and plotting
-        sm1 = plt.cm.ScalarMappable(cmap=cmap_1, norm=norm_1)
-        cbar1 = plt.colorbar(sm1, ax=ax1, orientation='vertical', extend='max', fraction=0.035, pad=0.03)
-        cbar1.set_ticks([0, 1000, 2000, 3000, 4000, 5000, 6000])
-
-        sm2 = plt.cm.ScalarMappable(cmap=cmap_2, norm=norm_2)
-        cbar2 = plt.colorbar(sm2, ax=ax2, orientation='vertical', extend='max', fraction=0.035, pad=0.03)
-        cbar2.set_ticks([0, 2, 4, 6, 8, 10, 12, 14])
-
-        ax1.set_title('Height (m)')
-        ax2.set_title('Specific Humidity (g/kg)')
-        
-        fig.subplots_adjust(top=0.85, hspace=0.01, left=0.03, right=0.97)
-        fig.savefig("./figures/" + out_file)
-        #plt.show()
-    
     # plots Lagrangian omega(x,y,p,t) using two methods
     # Method 1: estimate w via reanalysis-derived values at nearest p surface and gridpoint 
     # Method 2: coarse estimation of omega using traj pressure output 
@@ -748,12 +825,63 @@ class TrajectoryFile:
 
         plt.savefig("./figures/" + out_file)
 
+# plot of all trajectories 
+def plot_all_trajectories(path, out_file):
+    # Create one figure with two subplots.
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5),
+                                   subplot_kw={'projection': ccrs.PlateCarree()})
+
+    cmap_1 = cm.get_cmap('plasma_r')
+    cmap_2 = cm.get_cmap('viridis')
+    norm_1 = plt.Normalize(0, 6000)
+    norm_2 = plt.Normalize(0, 14)
+
+    # Get all .traj files in the specified directory.
+    traj_files = glob.glob(os.path.join(path, "*.traj"))
+    #traj_files = [path + "traj_20241211_00.traj", path + "traj_20241211_06.traj"]
+    for traj_file_path in traj_files:
+        traj_file = TrajectoryFile(traj_file_path)
+        # Plot the trajectories from this file onto the shared axes.
+        traj_file.plot_trajectories((ax1, ax2))
+        print(f"{traj_file_path} is done")
+
+    # Create colorbars using the normalization parameters (defined outside of the loops).
+    sm1 = plt.cm.ScalarMappable(cmap=cmap_1, norm=norm_1)
+    sm1.set_array([])  # Necessary for ScalarMappable.
+    cbar1 = plt.colorbar(sm1, ax=ax1, orientation='vertical',
+                         extend='max', fraction=0.035, pad=0.03)
+    cbar1.set_ticks([0, 1000, 2000, 3000, 4000, 5000, 6000])
+
+    sm2 = plt.cm.ScalarMappable(cmap=cmap_2, norm=norm_2)
+    sm2.set_array([])
+    cbar2 = plt.colorbar(sm2, ax=ax2, orientation='vertical',
+                         extend='max', fraction=0.035, pad=0.03)
+    cbar2.set_ticks([0, 2, 4, 6, 8, 10, 12, 14])
     
+    ax1.set_title('Height (m)')
+    ax2.set_title('Specific Humidity (g/kg)')
 
-# might be useful to plot time series (ht vs time) of trajectories?
+    # Set up the map features on both axes.
+    for ax in [ax1, ax2]:
+        ax.set_extent([-130, -55, 5, 50], crs=ccrs.PlateCarree())
+        ax.add_feature(cfeature.LAND)
+        ax.add_feature(cfeature.OCEAN)
+        ax.add_feature(cfeature.COASTLINE, zorder=999) # overlay on top of trajectories
+        ax.add_feature(cfeature.BORDERS, linestyle=':', zorder=999)
+        ax.add_feature(cfeature.LAKES, alpha=0.5)
+    
+    fig.subplots_adjust(top=0.85, hspace=0.01, left=0.03, right=0.97)
+    fig.savefig("./figures/" + out_file) 
 
-# Example with test case + animate files
 path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
+out_file = "all_trajectories_3day.png"
+plot_all_trajectories(path, out_file)
+
+# might be useful to plot ht vs time of trajectories?
+### YES - DO THIS
+
+# Example with test case + animate files (for one date)
+""" path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
 case_nums = range(1321, 1334) ### change as needed # 1021, 1034 and 1221, 1234
 hours = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
@@ -768,7 +896,7 @@ for case_num, hour in zip(case_nums, hours): # loop across multiple case_nums an
     traj_file.plot_trajectories("Baltimore, MD", out_file) ### 
     #traj_file.plot_omega_lagr_gridplots(pyg.open("./era5/plevels_jan2024_test_2.nc"), 
         #"Omega gridplots (Pa/s) following trajectories ending at Baltimore " + f"Jan 10 2024 {hour} UTC", out_file) ### 
-    print("Completed " + out_file)
+    print("Completed " + out_file)"""
 
 """ fn = []
 for case_num, hour in zip(case_nums, hours):
