@@ -366,6 +366,7 @@ class TrajectoryFile:
         cmap_2 = cm.get_cmap('viridis')
         norm_1 = plt.Normalize(0, 6000)
         norm_2 = plt.Normalize(0, 14)
+        print(self.ntraj + 1)
         
         for traj_num in range(1, self.ntraj + 1):
             trajectory = self.data_1h.loc[traj_num]
@@ -388,12 +389,12 @@ class TrajectoryFile:
             # Plot only if both conditions are met.
             if cond_1 and cond_2:
                 # optional: restrict trajectories to 3 days
-                mask_3days = (traj_age >= -72)
+                """mask_3days = (traj_age >= -72)
                 lats = lats[mask_3days]
                 lons = lons[mask_3days]
                 heights = heights[mask_3days]
                 sp_hum = sp_hum[mask_3days]
-                traj_age = traj_age[mask_3days]
+                traj_age = traj_age[mask_3days]"""
 
                 # Plot on ax1 (using height-based color)
                 for i in range(len(lats) - 1):
@@ -874,8 +875,9 @@ def plot_all_trajectories(path, out_file):
     fig.savefig("./figures/" + out_file) 
 
 path = "/local1/storage1/HYSPLIT/hysplit.v5.3.0_UbuntuOS20.04.6LTS_public/working/trajectories/"
-out_file = "all_trajectories_3day.png"
+out_file = "all_trajectories_123.png"
 plot_all_trajectories(path, out_file)
+
 
 # might be useful to plot ht vs time of trajectories?
 ### YES - DO THIS
