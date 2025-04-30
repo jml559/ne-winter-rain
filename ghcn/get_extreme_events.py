@@ -14,6 +14,18 @@ precip_data = ds.precip[:].T # shape (days, stations), to get time series per st
 all_dates = pd.date_range(start="1960-01-01", end="2024-12-31", freq="D")
 date_strings = all_dates[all_dates.month.isin([1, 2, 12])].strftime("%Y-%m-%d").tolist()
 
+# make a list of the top 20 dates with highest area-wide rainfall 
+""" precip_sum = ds.precip.sum("station")
+
+total_precip = precip_sum[:]
+index = ds.time[:]
+sorted_indices = total_precip.argsort()[::-1]
+top_20_indices = sorted_indices[:20]
+
+# Print top 20 dates and their total precip values
+for idx in top_20_indices:
+    print(f"{index}: {total_precip[idx]:.2f} in") """
+
 # get dates of extreme events (outputted to extreme_events_list.txt)
 """
 So far I have this code. I have computed the station-specific 90th percentile
@@ -36,7 +48,7 @@ most numnber of extremes to least number of extremes.
 etc. (repeating for all dates with at least 1 extreme event)
 """
 
-station_extreme_events = defaultdict(list) 
+""" station_extreme_events = defaultdict(list) 
 date_extreme_counts = Counter()
 pct_99_list = []
 
@@ -59,7 +71,7 @@ print("Extreme event occurrences ranked by date:")
 for date, count in date_extreme_counts.most_common():
     print(f"{date}: {count} stations")
 
-print(pct_99_list)
+print(pct_99_list)"""
 
 # scatterplot of stations along with their 99pct 
 """station_extreme_events = defaultdict(list) 

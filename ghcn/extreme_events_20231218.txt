@@ -1,0 +1,33 @@
+Locations with extreme precip on 20231218:
+
+Met extreme criteria:
+lat 43.205 and lon -71.503 with 2.73 in
+lat 39.452 and lon -74.567 with 2.27 in
+lat 40.683 and lon -74.169 with 2.75 in
+lat 42.361 and lon -71.010 with 1.68 in
+lat 38.341 and lon -75.513 with 4.04 in
+lat 39.674 and lon -75.606 with 1.76 in
+lat 40.779 and lon -73.880 with 2.13 in
+lat 40.779 and lon -73.969 with 2.21 in
+lat 42.207 and lon -75.980 with 2.06 in
+lat 42.747 and lon -73.799 with 2.13 in
+lat 44.933 and lon -74.848 with 1.16 in
+lat 39.873 and lon -75.227 with 2.19 in
+lat 39.870 and lon -76.863 with 2.53 in
+lat 41.243 and lon -76.922 with 1.41 in
+lat 41.333 and lon -75.723 with 2.16 in
+lat 44.468 and lon -73.150 with 2.20 in
+lat 41.490 and lon -71.543 with 2.79 in
+lat 40.650 and lon -75.448 with 1.98 in
+lat 41.164 and lon -73.127 with 1.87 in
+lat 41.937 and lon -72.682 with 2.17 in
+lat 42.449 and lon -76.449 with 1.55 in
+
+Did not meet extreme criteria: 
+lat 43.642 and lon -70.304 with 1.32 in
+lat 46.870 and lon -68.017 with 0.92 in
+lat 39.173 and lon -76.684 with 0.68 in
+lat 42.940 and lon -78.736 with 0.19 in
+lat 43.117 and lon -77.675 with 0.26 in
+lat 42.074 and lon -78.452 with 0.18 in
+lat 40.485 and lon -80.214 with 0.07 in
